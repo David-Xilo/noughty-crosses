@@ -1,0 +1,11 @@
+{
+  "appId": "dev.xilo.noughtsandvariants",
+  "appName": "Noughty Crosses",
+  "webDir": "dist",
+  "backgroundColor": "#0d0907",
+  "plugins": {
+    "SystemBars": {
+      "style": "DARK"
+    }
+  }
+}

@@ -1,0 +1,63 @@
+# The Windows desktop app (TTT-4.3.1). This computer has no Windows toolchain, so the
+# Windows build runs here: the app's .exe and its NSIS installer, kept as an artifact.
+# Then the Steam build (TTT-4.3.3): its .exe and steam_api64.dll, started once.
+name: Windows build
+
+on:
+  push:
+    branches: [main]
+    paths-ignore: ["**.md", "docs/**", "spikes/**"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: windows-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      # The Rust that builds the Linux app on the operator's computer.
+      - run: |
+          rustup toolchain install 1.98.1 --profile minimal
+          rustup default 1.98.1
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+      - run: npm ci
+      - run: npm run desktop
+      - uses: actions/upload-artifact@v7
+        with:
+          name: noughty-crosses-windows
+          path: |
+            src-tauri/target/release/noughty-crosses.exe
+            src-tauri/target/release/bundle/nsis/*.exe
+          if-no-files-found: error
+      - run: npm run desktop:steam
+      # Starts the Steam build once, without Steam: it must say why Steam is off, load
+      # WebView2 and draw the measure scene with WebGL 2 on the runner, which has no GPU.
+      - name: Start the Steam build
+        shell: pwsh
+        timeout-minutes: 5
+        run: |
+          $env:TTT_MEASURE = "low"
+          Start-Process src-tauri/target/release/noughty-crosses.exe -Wait `
+            -RedirectStandardOutput start.txt -RedirectStandardError start-err.txt
+          Get-Content start.txt, start-err.txt
+          if (-not (Select-String -Path start.txt -Pattern '^STEAM off')) { exit 1 }
+          if (-not (Select-String -Path start.txt -Pattern '^MEASURE low')) { exit 1 }
+      - uses: actions/upload-artifact@v7
+        with:
+          name: noughty-crosses-windows-steam
+          path: |
+            src-tauri/target/release/noughty-crosses.exe
+            src-tauri/target/release/steam_api64.dll
+          if-no-files-found: error

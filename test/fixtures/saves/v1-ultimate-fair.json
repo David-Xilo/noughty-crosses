@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "setup": {
+    "mode": "ultimate",
+    "opponent": "friend",
+    "level": "casual",
+    "side": "first",
+    "boards": 1,
+    "fair": true
+  },
+  "first": "X",
+  "seed": 5,
+  "moves": [18, 0, 1],
+  "rng": [2990919034, 1886111053, 4004670297, 3295541126]
+}

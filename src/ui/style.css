@@ -1,0 +1,1238 @@
+/* Game styles (docs/style-guide.md: "Menus", "Cards", "Focus"). Tokens mirror
+   src/ui/tokens.ts. Sizes are in rem, so the browser's text size and zoom scale them. */
+:root {
+  --felt: #1f3b2e;
+  --walnut: #5a3a22;
+  --walnut-dark: #2e1d12;
+  --board: #9c7148;
+  --brass: #c8a15a;
+  --paper: #f3ecdd;
+  --ink: #1b1b1f;
+  --x-glaze: #ede6d6;
+  --pewter: #dcdee1;
+  --o-lacquer: #1a2442;
+  --win: #f2c46d;
+  --danger: #b5483b;
+  --x-rim: none;
+  --o-rim: var(--brass);
+  --o-rim-width: 2.4;
+  --display: "Fraunces Variable", Georgia, serif;
+  --body: "Atkinson Hyperlegible", system-ui, sans-serif;
+  color-scheme: dark;
+}
+/* High contrast (GDD §8, style guide "Pieces"): a white X with a black rim and a black O
+   with a white rim, on a grey board. Values from src/ui/tokens.ts (highContrast). */
+[data-contrast="more"] {
+  /* Brass text (panel titles, notes) at 9.3:1 on the panel and 7:1 on the felt (G4). */
+  --brass: #e0c184;
+  --x-glaze: #ffffff;
+  --pewter: #ffffff;
+  --o-lacquer: #000000;
+  --board: #707070;
+  --x-rim: #000000;
+  --o-rim: #ffffff;
+  --o-rim-width: 4;
+}
+[hidden] {
+  /* biome-ignore lint/complexity/noImportantStyles: the hidden attribute must win over component display rules */
+  display: none !important;
+}
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: #0d0907;
+  color: var(--paper);
+  font-family: var(--body);
+}
+body {
+  overflow: hidden;
+}
+#table {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.hud {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right))
+    max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  display: grid;
+  gap: 1rem;
+  box-sizing: border-box;
+  /* Portrait: the panel above the board, the result card below it. */
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-areas: "panel" "board" "result";
+}
+/* Landscape: the panel and the result card share a left column, and the board has the
+   whole right column, so their heights never change its size or place (TTT-0.1). */
+@media (orientation: landscape) {
+  .hud {
+    grid-template-columns: clamp(14rem, 34vw, 24rem) minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    grid-template-areas: "panel board" "result board";
+  }
+}
+.hud > * {
+  pointer-events: auto;
+}
+/* The 2D board's area: the board is sized to it (container units), never the reverse. */
+.board-area {
+  grid-area: board;
+  pointer-events: none;
+  container-type: size;
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  min-height: 0;
+}
+h1,
+h2 {
+  font-family: var(--display);
+  font-variation-settings:
+    "SOFT" 60,
+    "WONK" 0,
+    "opsz" 72;
+  font-weight: 620;
+  font-variant-caps: small-caps;
+  letter-spacing: 0.05em;
+  margin: 0 0 0.4rem;
+}
+
+/* Letterpress paper cards on the felt: setup and result. */
+.paper {
+  background:
+    radial-gradient(circle at 20% 10%, rgb(255 255 255 / 0.35), transparent 60%),
+    repeating-linear-gradient(0deg, rgb(0 0 0 / 0.012) 0 2px, transparent 2px 4px), var(--paper);
+  color: var(--ink);
+  border-radius: 3px;
+  padding: 1.2rem 1.4rem;
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 0.6) inset,
+    0 0 0 1px rgb(90 58 34 / 0.25),
+    0 18px 40px rgb(0 0 0 / 0.55);
+  font-size: 1.125rem;
+  line-height: 1.5;
+  animation: rise 180ms ease-out;
+  color-scheme: light;
+}
+.paper h1,
+.paper h2 {
+  color: var(--walnut);
+  border-bottom: 2px solid color-mix(in srgb, var(--walnut) 35%, transparent);
+  padding-bottom: 0.25rem;
+}
+.paper h1 {
+  font-size: 2.2rem;
+}
+.paper h2 {
+  font-size: 1.8rem;
+}
+@keyframes rise {
+  from {
+    transform: translateY(12px);
+    opacity: 0;
+  }
+}
+
+/* Cards over the whole table: rules, setup, pause, settings, credits. Positioned, so they
+   sit over the 2D board, which is positioned too. */
+.card {
+  grid-area: 1 / 1 / -1 / -1;
+  position: relative;
+  z-index: 1;
+  justify-self: center;
+  align-self: center;
+  width: min(36rem, 100%);
+  max-height: 100%;
+  overflow: auto;
+  box-sizing: border-box;
+}
+.card.narrow {
+  width: min(26rem, 100%);
+}
+.card h2:focus {
+  outline: none;
+}
+@media (min-width: 60rem) {
+  .setup {
+    width: min(58rem, 100%);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 2rem;
+  }
+  .setup h2 {
+    grid-column: 1 / 3;
+  }
+}
+.actions.stack {
+  flex-direction: column;
+  align-items: stretch;
+}
+.record {
+  margin: 0.3rem 0 0;
+  font-size: 1rem;
+}
+.credits h3 {
+  font: 700 1.1rem / 1.3 var(--body);
+  margin: 0.8rem 0 0.2rem;
+}
+.credits ul {
+  margin: 0;
+  padding-left: 1.2rem;
+  font-size: 1rem;
+  overflow-wrap: anywhere;
+}
+
+/* The games cabinet (style guide, "Menus"): walnut, with brass plates engraved in the
+   display face. Closed, its doors carry the title menu; open, it shows the mode drawers. */
+.cabinet {
+  grid-area: 1 / 1 / -1 / -1;
+  justify-self: center;
+  align-self: center;
+  width: min(60rem, 100%);
+  max-height: 100%;
+  overflow: auto;
+  box-sizing: border-box;
+  padding: 1rem;
+  background:
+    repeating-linear-gradient(
+      94deg,
+      rgb(0 0 0 / 0.07) 0 3px,
+      transparent 3px 11px,
+      rgb(255 255 255 / 0.03) 11px 13px,
+      transparent 13px 23px
+    ),
+    linear-gradient(var(--walnut), color-mix(in srgb, var(--walnut) 80%, black));
+  border: 10px solid var(--walnut-dark);
+  border-radius: 8px;
+  box-shadow:
+    0 24px 60px rgb(0 0 0 / 0.6),
+    inset 0 1px 0 rgb(255 255 255 / 0.12);
+  perspective: 1200px;
+}
+.plate {
+  justify-self: center;
+  width: fit-content;
+  margin: 0 auto 1rem;
+  padding: 0.3rem 1.4rem 0.1rem;
+  background: linear-gradient(#dcb874, var(--brass) 45%, #a8843f);
+  border-radius: 4px;
+  box-shadow:
+    0 2px 4px rgb(0 0 0 / 0.5),
+    inset 0 1px 0 rgb(255 255 255 / 0.5);
+}
+.plate h1,
+.plate h2 {
+  color: var(--walnut-dark);
+  text-shadow: 0 1px 0 rgb(255 255 255 / 0.4);
+  margin: 0;
+  font-size: clamp(1.6rem, 5vw, 2.6rem);
+}
+.plate h2 {
+  font-size: 1.8rem;
+}
+/* Closed: two doors, a seam between them and two brass knobs; the menu card hangs on them. */
+.doors {
+  display: grid;
+  place-items: center;
+  min-height: min(26rem, 60vh);
+  padding: 1.5rem 1rem;
+  border-radius: 4px;
+  background:
+    radial-gradient(circle at calc(50% - 1.4rem) 50%, var(--brass) 0 0.45rem, transparent 0.5rem),
+    radial-gradient(circle at calc(50% + 1.4rem) 50%, var(--brass) 0 0.45rem, transparent 0.5rem),
+    linear-gradient(
+      90deg,
+      transparent calc(50% - 1px),
+      var(--walnut-dark) 0 calc(50% + 1px),
+      transparent 0
+    );
+  box-shadow:
+    inset 0 0 0 0.8rem rgb(0 0 0 / 0.12),
+    inset 0 0 0 calc(0.8rem + 2px) rgb(255 255 255 / 0.05);
+}
+.title-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  width: min(19rem, 100%);
+}
+.save-note {
+  margin: 0;
+  font-size: 1rem;
+}
+/* Open: the doors stand swung out at the sides (they swing when the drawers appear). They
+   are inset shadows, so they stay put while the drawers scroll and never cover them. */
+.cabinet.open {
+  --doors: inset 1rem 0 0 var(--walnut-dark), inset -1rem 0 0 var(--walnut-dark);
+  --cabinet-shadow: 0 24px 60px rgb(0 0 0 / 0.6), inset 0 1px 0 rgb(255 255 255 / 0.12);
+  padding-inline: 1.8rem;
+  box-shadow: var(--doors), var(--cabinet-shadow);
+  animation: swing 400ms ease-out;
+}
+@keyframes swing {
+  from {
+    box-shadow:
+      inset 30rem 0 0 var(--walnut),
+      inset -30rem 0 0 var(--walnut),
+      var(--cabinet-shadow);
+  }
+}
+.drawer-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
+  gap: 0.8rem;
+}
+.drawer {
+  position: relative;
+}
+/* A drawer front: brass label, the board in miniature, the rule and the fairness note.
+   Focus or hover slides it out 8 px with a brass edge light. */
+.drawer-pull {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: minmax(44px, auto) 1fr; /* the label row fits the "?" */
+  gap: 0.4rem 0.8rem;
+  align-items: start;
+  text-align: left;
+  padding: 0.7rem 0.8rem 0.8rem;
+  color: var(--paper);
+  font: 1rem / 1.35 var(--body);
+  background: linear-gradient(
+    color-mix(in srgb, var(--walnut-dark) 85%, var(--walnut)),
+    var(--walnut-dark)
+  );
+  border: 1px solid rgb(0 0 0 / 0.5);
+  border-radius: 4px;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.08),
+    0 3px 0 rgb(0 0 0 / 0.4);
+  cursor: pointer;
+  transition:
+    transform 220ms ease-out,
+    box-shadow 220ms ease-out;
+}
+.drawer-pull:hover,
+.drawer-pull:focus-visible {
+  transform: translateY(-8px);
+  box-shadow:
+    0 0 0 2px var(--brass),
+    0 0 1rem color-mix(in srgb, var(--brass) 45%, transparent),
+    0 10px 18px rgb(0 0 0 / 0.5);
+}
+.drawer-label {
+  grid-column: 1 / -1;
+  justify-self: start;
+  align-self: center;
+  padding: 0.15rem 0.8rem 0;
+  font-family: var(--display);
+  font-variant-caps: small-caps;
+  font-weight: 620;
+  font-size: 1.35rem;
+  letter-spacing: 0.05em;
+  color: var(--walnut-dark);
+  background: linear-gradient(#dcb874, var(--brass) 45%, #a8843f);
+  border-radius: 3px;
+  margin-right: 2.6rem; /* room for the "?" */
+}
+.drawer-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.drawer-text .fairness {
+  font-style: italic;
+  color: color-mix(in srgb, var(--paper) 85%, var(--brass));
+}
+.drawer-text .badge {
+  align-self: start;
+  padding: 0 0.5rem;
+  border: 1px solid var(--win);
+  border-radius: 999px;
+  color: var(--win);
+  font-weight: 700;
+}
+.howto {
+  position: absolute;
+  top: 0.7rem;
+  right: 0.8rem;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid var(--brass);
+  background: var(--walnut-dark);
+  color: var(--brass);
+  font: 700 1.2rem / 1 var(--body);
+  cursor: pointer;
+}
+fieldset {
+  border: 0;
+  margin: 0.6rem 0 0;
+  padding: 0;
+}
+fieldset:disabled {
+  opacity: 0.45;
+}
+legend {
+  font-weight: 700;
+  margin-bottom: 0.2rem;
+}
+fieldset.row label,
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0.15rem 1rem 0.15rem 0;
+  min-height: 44px;
+}
+input[type="radio"],
+input[type="checkbox"] {
+  width: 1.15rem;
+  height: 1.15rem;
+  accent-color: var(--walnut);
+}
+.rule-card {
+  margin-top: 0.6rem;
+  padding: 0.7rem 0.9rem;
+  border: 1px dashed color-mix(in srgb, var(--walnut) 45%, transparent);
+  border-radius: 3px;
+}
+.rule-card p {
+  margin: 0 0 0.3rem;
+}
+.rule-card .fairness {
+  font-style: italic;
+}
+.actions {
+  margin: 1rem 0 0;
+  display: flex;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+/* Buttons look like stamped labels, with a pressed state. */
+.stamp {
+  font: 700 1.1rem / 1 var(--body);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--paper);
+  background: var(--walnut);
+  border: 2px solid var(--walnut-dark);
+  border-radius: 3px;
+  padding: 0.75rem 1.4rem;
+  min-height: 44px;
+  cursor: pointer;
+  box-shadow:
+    0 2px 0 var(--walnut-dark),
+    inset 0 1px 0 rgb(255 255 255 / 0.15);
+}
+.stamp:disabled {
+  opacity: 0.55;
+  cursor: progress;
+}
+.stamp:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: inset 0 2px 3px rgb(0 0 0 / 0.4);
+}
+.stamp.quiet {
+  color: var(--walnut-dark);
+  background: transparent;
+}
+.stamp.small {
+  font-size: 0.95rem;
+  padding: 0.5rem 0.9rem;
+}
+/* Misère wild, Order and Chaos: the mark to place, beside the board (src/main.ts places
+   it). The piece shows the mark; the stamp is the swap. */
+.mark-swap {
+  position: fixed;
+  left: 0;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.6rem 0.9rem;
+  font-size: 0.95rem;
+}
+.mark-swap[hidden] {
+  display: none;
+}
+/* Portrait: the 2D board leaves the button room underneath. */
+@media (orientation: portrait) {
+  [data-wild][data-board="2d"] .board-area {
+    padding-bottom: 7rem;
+  }
+}
+.mark-piece {
+  width: 3rem;
+  height: 3rem;
+  padding: 0.2rem;
+  border-radius: 3px;
+  background: var(--board);
+  filter: drop-shadow(0 0.1rem 0.1rem rgb(0 0 0 / 0.35));
+}
+/* Nesting: the tray beside the board (src/main.ts places it), one stamp per size, large
+   first. The pressed stamp is the piece held (NE2); an empty size is disabled. */
+.tray {
+  position: fixed;
+  left: 0;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.tray[hidden] {
+  display: none;
+}
+/* Whose pieces these are, and the key that takes the next size (TTT-4.5). */
+.tray-title {
+  margin: 0;
+  font: 700 0.85rem / 1.2 var(--body);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--brass);
+  text-shadow: 0 1px 2px rgb(0 0 0 / 0.6);
+}
+.tray-hint {
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--paper);
+  opacity: 0.8;
+}
+.tray-pieces {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+/* One stamp per size: the piece at its size, its name and the count left. The one held is
+   pressed into brass and says so; the others step back while a piece is held (TTT-4.5). */
+.tray-piece {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.7rem;
+  font-size: 0.9rem;
+  text-align: left;
+}
+.tray-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  line-height: 1.1;
+}
+.tray-count,
+.tray-held {
+  font-weight: 400;
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  text-transform: none;
+}
+.tray-held {
+  display: none;
+}
+.tray-piece[aria-pressed="true"] {
+  color: var(--ink);
+  background: linear-gradient(#dcb874, var(--brass) 45%, #a8843f);
+  border-color: #a8843f;
+  box-shadow:
+    inset 0 2px 3px rgb(0 0 0 / 0.35),
+    0 0 0 2px rgb(0 0 0 / 0.35);
+  transform: translateY(2px);
+}
+.tray-piece[aria-pressed="true"] .tray-count {
+  display: none;
+}
+.tray-piece[aria-pressed="true"] .tray-held {
+  display: inline;
+  font-weight: 700;
+}
+.tray[data-held] .tray-piece[aria-pressed="false"]:not(:disabled) {
+  opacity: 0.7;
+}
+.tray-piece .mark-piece {
+  box-sizing: border-box;
+  width: 2.8rem;
+  height: 2.8rem;
+  flex: none;
+}
+.tray-piece[data-size="1"] .mark-piece {
+  padding: 0.6rem;
+}
+.tray-piece[data-size="0"] .mark-piece {
+  padding: 0.95rem;
+}
+@media (orientation: portrait) {
+  .tray-pieces {
+    flex-direction: row;
+  }
+  /* Under the board the stamps stand in a row, the name under the piece, so three fit a
+     phone's width. */
+  .tray-piece {
+    flex-direction: column;
+    gap: 0.15rem;
+    padding: 0.3rem 0.5rem;
+    font-size: 0.8rem;
+  }
+  .tray-text {
+    align-items: center;
+  }
+  .tray-piece .mark-piece {
+    width: 2.4rem;
+    height: 2.4rem;
+  }
+  .tray-piece[data-size="1"] .mark-piece {
+    padding: 0.5rem;
+  }
+  .tray-piece[data-size="0"] .mark-piece {
+    padding: 0.8rem;
+  }
+  [data-nest][data-board="2d"] .board-area {
+    padding-bottom: 7rem;
+  }
+}
+/* The key hint is for a keyboard; a touch screen does without it. */
+@media (hover: none) {
+  .tray-hint {
+    display: none;
+  }
+}
+/* On a wide screen the 2D board leaves the tray its column, so it never covers a cell. */
+@media (orientation: landscape) {
+  [data-nest][data-board="2d"] .board-area {
+    padding-right: 9.5rem;
+  }
+}
+
+/* Focus: a 3 px brass ring with a 2 px offset; hover and focus look the same. */
+:focus-visible {
+  outline: 3px solid var(--brass);
+  outline-offset: 2px;
+}
+.paper :focus-visible {
+  outline-color: var(--walnut);
+}
+/* A controller moves focus from script, which browsers do not always mark as visible. */
+[data-input="pad"] :focus {
+  outline: 3px solid var(--brass);
+  outline-offset: 2px;
+}
+[data-input="pad"] .paper :focus {
+  outline-color: var(--walnut);
+}
+
+/* The playtest log (playtest builds only). */
+.playtest {
+  grid-column: 1 / -1;
+  margin-top: 0.8rem;
+  font-size: 0.95rem;
+}
+.playtest textarea {
+  width: 100%;
+  box-sizing: border-box;
+  font:
+    0.85rem / 1.4 ui-monospace,
+    monospace;
+}
+
+/* The status panel during play: walnut, never text on the raw render. */
+.panel {
+  grid-area: panel;
+  align-self: start;
+  justify-self: start;
+  max-width: min(24rem, 100%);
+  /* Large text sizes scroll the panel rather than push it off screen (the HUD's padding). */
+  max-height: calc(100dvh - 32px);
+  overflow: auto;
+  box-sizing: border-box;
+  background: var(--walnut-dark);
+  border: 1px solid color-mix(in srgb, var(--brass) 55%, transparent);
+  border-radius: 6px;
+  padding: 0.8rem 1.1rem 0.9rem;
+  box-shadow:
+    0 10px 30px rgb(0 0 0 / 0.45),
+    inset 0 1px 0 rgb(255 255 255 / 0.06);
+}
+.panel h2 {
+  color: var(--brass);
+  font-size: 1.7rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--brass) 45%, transparent);
+  padding-bottom: 0.2rem;
+}
+.panel p {
+  margin: 0.25rem 0 0;
+  font-size: 1.125rem;
+  line-height: 1.5;
+}
+/* Room for two lines of status and of the fading note, so in portrait the panel keeps its
+   height during play and the board below it does not move. */
+.panel .turn {
+  font-weight: 700;
+  min-height: 2.9em;
+}
+.panel .vanish-note {
+  min-height: 2.9em;
+}
+.panel .vanish-note {
+  color: var(--brass);
+}
+.panel .actions {
+  margin-top: 0.6rem;
+}
+.panel .stamp {
+  background: transparent;
+  color: var(--paper);
+  border-color: var(--brass);
+  box-shadow: none;
+}
+.measure {
+  font-size: 1rem;
+  color: var(--brass);
+}
+.result {
+  grid-area: result;
+  justify-self: center;
+  width: min(30rem, 100%);
+  max-height: 100%;
+  overflow: auto;
+  box-sizing: border-box;
+}
+@media (orientation: landscape) {
+  .result {
+    align-self: end;
+    justify-self: stretch;
+    width: auto;
+  }
+  /* Over the 3D table the card sits at the right, clear of the board's win line. */
+  [data-board="3d"] .result {
+    grid-area: board;
+    align-self: center;
+    justify-self: end;
+    width: min(24rem, 100%);
+  }
+}
+/* A phone on its side: the card takes half the board column at most, so the strip beside
+   it keeps the finished board or cube in view (src/main.ts syncFrame; TTT-4.5). */
+@media (orientation: landscape) and (max-height: 500px) {
+  [data-board="3d"] .result {
+    width: min(24rem, 55%);
+  }
+}
+.result h2:focus {
+  outline: none;
+}
+.hint {
+  font-style: italic;
+}
+
+/* The pieces on the 2D board and the demo board: SVG symbols from index.html
+   (src/ui/pieces.ts). They fill a fixed share of the cell, so they never size it. */
+.sprite {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+.piece {
+  position: absolute;
+  inset: 12%;
+  width: 76%;
+  height: 76%;
+  pointer-events: none;
+  filter: drop-shadow(0 0.15rem 0.12rem rgb(0 0 0 / 0.35));
+}
+/* Nesting: small and medium pieces (NE1); a large piece fills the usual share. */
+.piece[data-size="0"] {
+  inset: 31%;
+  width: 38%;
+  height: 38%;
+}
+.piece[data-size="1"] {
+  inset: 21%;
+  width: 58%;
+  height: 58%;
+}
+.piece.placed {
+  animation: settle 200ms ease-out;
+}
+@keyframes settle {
+  from {
+    transform: scale(1.18);
+    opacity: 0;
+  }
+}
+/* Overtime: the ring's cells appear around the marks when the board grows (O2). */
+.cell.grown {
+  animation: grow-in 420ms ease-out;
+}
+@keyframes grow-in {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+}
+/* The ghost of the piece that would be placed shows only under the pointer or focus, or
+   in Gravity on the cell where a pick in the pointed column lands. */
+.piece.ghost {
+  opacity: 0;
+  transform: scale(0.8);
+  filter: none;
+}
+.cell:hover .piece.ghost,
+.cell:focus-visible .piece.ghost,
+.cell.aimed .piece.ghost {
+  opacity: 0.3;
+}
+/* V6: the mark that vanishes next is pale and breathes (still under reduced motion). */
+/* Frosted, like the 3D table's fading mark; the ghost is smaller and has no shadow. */
+.fading .piece {
+  opacity: 0.45;
+  filter: blur(0.5px) saturate(0.4);
+  animation: breathe 1.6s ease-in-out infinite;
+}
+@keyframes breathe {
+  50% {
+    opacity: 0.25;
+  }
+}
+.win {
+  background: color-mix(in srgb, var(--win) 30%, transparent);
+}
+.win-line {
+  display: none;
+}
+[data-board="2d"] .win-line.on {
+  display: block;
+  position: absolute;
+  inset: var(--board-pad);
+  width: calc(100% - 2 * var(--board-pad));
+  height: calc(100% - 2 * var(--board-pad));
+  pointer-events: none;
+  overflow: visible;
+  filter: drop-shadow(0 0 0.3rem var(--win));
+}
+.win-line line {
+  stroke: var(--win);
+  stroke-width: 0.07;
+  stroke-linecap: round;
+  stroke-dasharray: var(--len); /* the line's length in cells, set by mirror.ts */
+  stroke-dashoffset: 0;
+  animation: sweep 500ms ease-out;
+}
+@keyframes sweep {
+  from {
+    stroke-dashoffset: var(--len);
+  }
+}
+
+/* The DOM mirror: visually hidden in the 3D views, the boards themselves in the 2D view
+   and while the 3D table is still loading (data-board, set by src/main.ts). */
+.mirror {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+.mirror [role="row"] {
+  display: contents;
+}
+/* Notakto: both sides place the neutral pewter X (style guide, "Pieces"). */
+.mirror[data-neutral] {
+  --x-glaze: var(--pewter);
+}
+[data-gfx="2d"] body {
+  background: var(--felt);
+}
+[data-gfx="2d"] #table {
+  display: none;
+}
+/* Each 2D board is as large as its area allows (up to 30rem) and square: explicit width,
+   height and rows, so neither the pieces nor the panel can change it during a game.
+   WebKitGTK grew auto-sized rows (TTT-0.1). Notakto's boards (--boards, set by
+   src/ui/mirror.ts) share the area in a row, or in a column when the area is tall. */
+[data-board="2d"][data-ingame] .mirror {
+  --gap: 1rem;
+  --board-size: min(30rem, 100cqh, (100cqw - (var(--boards) - 1) * var(--gap)) / var(--boards));
+  position: relative;
+  pointer-events: auto;
+  width: auto;
+  height: auto;
+  clip-path: none;
+  overflow: visible;
+  display: flex;
+  gap: var(--gap);
+}
+@container (aspect-ratio < 1) {
+  [data-board="2d"][data-ingame] .mirror {
+    flex-direction: column;
+    --board-size: min(30rem, 100cqw, (100cqh - (var(--boards) - 1) * var(--gap)) / var(--boards));
+  }
+}
+[data-board="2d"][data-ingame] .board2d {
+  --board-pad: calc(var(--board-size) * 0.05);
+  position: relative;
+  width: var(--board-size);
+  height: var(--board-size);
+  display: grid;
+  grid-template-columns: repeat(var(--size), minmax(0, 1fr));
+  grid-template-rows: repeat(var(--size), minmax(0, 1fr));
+  padding: var(--board-pad);
+  box-sizing: border-box;
+  background: var(--board);
+  border: 8px solid var(--walnut);
+  border-radius: 10px;
+  box-shadow: 0 18px 40px rgb(0 0 0 / 0.5);
+}
+/* Notakto: a dead board takes no more marks; its pieces and line are muted (N2). */
+.board2d.dead .piece {
+  opacity: 0.55;
+}
+[data-board="2d"] .board2d.dead {
+  background: color-mix(in srgb, var(--board) 70%, black);
+}
+.win-line.dead {
+  filter: none;
+}
+.win-line.dead line {
+  stroke: var(--walnut-dark);
+}
+.cell {
+  border: 0;
+  margin: 0;
+  background: transparent;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  position: relative;
+  min-width: 48px;
+  min-height: 48px;
+}
+[data-board="2d"] .cell {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--brass) 80%, transparent);
+}
+[data-board="2d"] .cell.win {
+  background: color-mix(in srgb, var(--win) 25%, transparent);
+}
+/* The last move: a dashed paper ring inside the cell, a shape as well as a colour (G10). */
+[data-board="2d"] .cell.last {
+  outline: 3px dashed color-mix(in srgb, var(--paper) 85%, transparent);
+  outline-offset: -8px;
+}
+/* Three men's morris: the piece picked up to slide is lifted and ringed in brass (TM2). */
+[data-board="2d"] .cell.selected {
+  box-shadow: inset 0 0 0 4px var(--brass);
+}
+.cell.selected .piece {
+  transform: translateY(-4px) scale(1.08);
+  filter: drop-shadow(0 6px 4px rgb(0 0 0 / 0.45));
+}
+/* Saucer: the flying saucer over the 2D board (S3). It shows while it waits for the next
+   piece placed, and during a visit (src/ui/mirror.ts animates it). */
+.saucer2d {
+  display: none;
+}
+[data-board="2d"] .saucer2d {
+  display: block;
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 2;
+  opacity: 0;
+  pointer-events: none;
+  filter: drop-shadow(0 0.4rem 0.3rem rgb(0 0 0 / 0.4));
+}
+[data-board="2d"] .saucer2d.waits {
+  opacity: 1;
+}
+.saucer2d .hull {
+  fill: var(--pewter);
+  stroke: var(--walnut-dark);
+  stroke-width: 2;
+}
+.saucer2d .dome {
+  fill: color-mix(in srgb, var(--paper) 60%, var(--o-lacquer));
+  stroke: var(--walnut-dark);
+  stroke-width: 2;
+}
+.saucer2d .light {
+  fill: var(--brass);
+}
+.saucer2d .beam {
+  fill: color-mix(in srgb, var(--brass) 40%, transparent);
+}
+.piece.carried {
+  inset: auto;
+  z-index: 1;
+}
+[data-board="2d"] .cell.blocked {
+  cursor: not-allowed;
+  background: rgb(0 0 0 / 0.12);
+}
+.cell.shake {
+  animation: shake 240ms ease-in-out;
+}
+@keyframes shake {
+  25% {
+    transform: translateX(-5px);
+  }
+  75% {
+    transform: translateX(5px);
+  }
+}
+
+@media (max-width: 40rem) {
+  .paper {
+    padding: 1rem;
+    font-size: 1rem;
+  }
+  .panel {
+    max-width: 100%;
+  }
+}
+
+/* Reduced motion (the setting, which starts from the OS's): every change is a short fade,
+   and idle loops stop. */
+[data-motion="reduced"] * {
+  /* biome-ignore lint/complexity/noImportantStyles: reduced motion must override every component */
+  animation: fade 120ms ease-out !important;
+  /* biome-ignore lint/complexity/noImportantStyles: reduced motion must override every component */
+  transition: none !important;
+}
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+/* Ultimate: nine boards in a 3 by 3 grid (--columns and data-columns, set by
+   src/ui/mirror.ts), smaller, with thinner edges and a smaller minimum cell. */
+[data-board="2d"][data-ingame] .mirror[data-columns] {
+  --gap: 0.5rem;
+  --board-size: min(
+    14rem,
+    (100cqh - (var(--columns) - 1) * var(--gap)) /
+    var(--columns),
+    (100cqw - (var(--columns) - 1) * var(--gap)) /
+    var(--columns)
+  );
+  display: grid;
+  grid-template-columns: repeat(var(--columns), auto);
+}
+[data-board="2d"][data-ingame] .mirror[data-columns] .board2d {
+  border-width: 4px;
+  border-radius: 6px;
+}
+.mirror[data-columns] .cell {
+  min-width: 24px;
+  min-height: 24px;
+}
+/* Cube: the layers in rows of two or three, from the bottom, each named over its grid
+   (data-layers and data-layer, set by src/ui/mirror.ts). Two rows share the height. */
+[data-board="2d"][data-ingame] .mirror[data-layers] {
+  --label: 1.5rem;
+  --board-size: min(
+    18rem,
+    (100cqh - 2 * var(--label) - var(--gap)) /
+    2,
+    (100cqw - (var(--columns) - 1) * var(--gap)) /
+    var(--columns)
+  );
+  row-gap: calc(var(--gap) + var(--label));
+  padding-top: var(--label);
+}
+.mirror[data-layers] .board2d::before {
+  content: attr(data-layer);
+  position: absolute;
+  bottom: calc(100% + 0.2rem);
+  left: 0;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+/* The board the side to move is sent to glows (U2), or every open board after a free
+   move (U3). */
+[data-board="2d"][data-ingame] .board2d.target {
+  border-color: var(--win);
+  box-shadow:
+    0 0 0 2px var(--win),
+    0 0 1.2rem color-mix(in srgb, var(--win) 70%, transparent);
+}
+/* A claimed board shows its side's large piece over its muted marks (U4); the three
+   boards of the winning line glow (U5). */
+.claim {
+  display: none;
+}
+[data-board="2d"] .board2d.claimed .claim {
+  display: block;
+  position: absolute;
+  inset: 12%;
+  width: 76%;
+  height: 76%;
+  pointer-events: none;
+  filter: drop-shadow(0 4px 6px rgb(0 0 0 / 0.45));
+}
+.board2d.claimed .cell .piece {
+  opacity: 0.3;
+}
+[data-board="2d"] .board2d.win {
+  background: color-mix(in srgb, var(--win) 35%, var(--board));
+  box-shadow: 0 0 1.4rem var(--win);
+}
+/* Miniature boards (src/ui/demo.ts): on the drawers and, larger, in the rule card's demo.
+   --mini is the whole picture's width; a grid of boards shares it. */
+.mini {
+  --mini: 5.5rem;
+  --cell: calc(var(--mini) / var(--columns) / var(--size));
+  display: grid;
+  grid-template-columns: repeat(var(--columns), auto);
+  gap: 0.15rem;
+  width: fit-content;
+}
+.mini[data-neutral] {
+  --x-glaze: var(--pewter);
+}
+.mini-board {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(var(--size), var(--cell));
+  grid-template-rows: repeat(var(--size), var(--cell));
+  padding: 0.12rem;
+  background: var(--board);
+  border: 2px solid var(--walnut);
+  border-radius: 3px;
+}
+.mini-board i {
+  position: relative;
+  box-shadow: inset 0 0 0 0.5px color-mix(in srgb, var(--brass) 80%, transparent);
+}
+.mini-board i.win,
+.mini-board.win {
+  background: color-mix(in srgb, var(--win) 45%, var(--board));
+}
+.mini-board.target {
+  border-color: var(--win);
+}
+.mini-board.dead {
+  background: color-mix(in srgb, var(--board) 65%, black);
+}
+.mini .mini-board.claimed .claim {
+  display: block;
+}
+.mini .mini-board.claimed i .piece {
+  opacity: 0.3;
+}
+.demo {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto;
+  column-gap: 1rem;
+  align-items: start;
+  margin-top: 0.7rem;
+}
+.demo .mini {
+  --mini: 8rem;
+  grid-row: 1 / 3;
+}
+.demo-caption {
+  margin: 0;
+  min-height: 4.4em;
+}
+.demo-controls {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Settings (GDD §8). At first launch only the first part shows, with the welcome. */
+.slider {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.2rem 0.6rem;
+  margin: 0.6rem 0 0;
+  min-height: 44px;
+  font-weight: 700;
+}
+.slider input {
+  flex: 1 1 8rem;
+  accent-color: var(--walnut);
+}
+.slider output {
+  font-weight: 400;
+  min-width: 3.5rem;
+}
+#settings[data-first] .later,
+#settings:not([data-first]) .first-only {
+  display: none;
+}
+.key-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.key-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.6rem;
+}
+.key-list .stamp {
+  min-width: 9rem;
+  text-transform: none;
+}
+.settings-note {
+  margin: 0.3rem 0;
+  min-height: 1.3em;
+  font-size: 1rem;
+}
+
+/* Camera buttons in the play panel; the 2D board has no camera. */
+.camera {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.6rem 0 0;
+}
+.camera .stamp {
+  min-width: 44px;
+  padding: 0.5rem 0.6rem;
+}
+[data-board="2d"] .camera {
+  display: none;
+}
+
+/* Controller prompts, after the controller was used last. */
+.pad-hints {
+  position: fixed;
+  left: 50%;
+  bottom: max(8px, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  z-index: 2;
+  display: none;
+  gap: 1.2rem;
+  margin: 0;
+  padding: 0.35rem 0.9rem;
+  border-radius: 3px;
+  background: var(--walnut-dark);
+  color: var(--paper);
+  font-size: 0.95rem;
+  white-space: nowrap;
+}
+[data-input="pad"] .pad-hints {
+  display: flex;
+}
+:root:not([data-screen="play"]) .pad-hints .in-play,
+:root:not([data-wild]) .pad-hints .in-wild,
+:root:not([data-nest]) .pad-hints .in-nest {
+  display: none;
+}

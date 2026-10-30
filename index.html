@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#0d0907" />
+    <title>Noughty Crosses</title>
+  </head>
+  <body>
+    <!-- The 2D pieces (src/ui/pieces.ts): a cross with soft ends like the carved 3D cross,
+         and a lacquer ring with a thin brass rim like the turned 3D ring. -->
+    <svg class="sprite" aria-hidden="true" focusable="false">
+      <symbol id="piece-x" viewBox="0 0 100 100">
+        <g transform="rotate(45 50 50)" style="fill: var(--x-glaze); stroke: var(--x-rim); stroke-width: 5; paint-order: stroke">
+          <rect x="39" y="10" width="22" height="80" rx="9" />
+          <rect x="10" y="39" width="80" height="22" rx="9" />
+        </g>
+      </symbol>
+      <symbol id="piece-o" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="29" style="fill: none; stroke: var(--o-lacquer); stroke-width: 19" />
+        <circle cx="50" cy="50" r="29" style="fill: none; stroke: var(--o-rim); stroke-width: var(--o-rim-width)" />
+      </symbol>
+    </svg>
+    <canvas id="table" aria-hidden="true"></canvas>
+    <main class="hud">
+      <!-- The cabinet (style guide, "Menus"): the title on its closed doors, the mode
+           drawers inside. Cards are paper on the felt. Esc goes back one step (GDD §6). -->
+      <section id="title" class="cabinet closed" aria-labelledby="title-name">
+        <div class="plate"><h1 id="title-name" data-l10n-id="app-title"></h1></div>
+        <div class="doors">
+          <nav class="title-menu paper" data-l10n-id="main-menu">
+            <p id="save-note" class="save-note" hidden></p>
+            <button type="button" class="stamp" id="continue" hidden></button>
+            <button type="button" class="stamp" id="open-play" data-l10n-id="play"></button>
+            <button type="button" class="stamp quiet" id="open-settings" data-l10n-id="settings"></button>
+            <button type="button" class="stamp quiet" id="open-credits" data-l10n-id="credits"></button>
+            <button type="button" class="stamp quiet" id="quit" data-l10n-id="quit" hidden></button>
+          </nav>
+        </div>
+      </section>
+
+      <section id="drawers" class="cabinet open" aria-labelledby="drawers-title" hidden>
+        <div class="plate"><h2 id="drawers-title" data-l10n-id="choose-game"></h2></div>
+        <ul id="drawer-list" class="drawer-list"></ul>
+        <p class="actions"><button type="button" class="stamp small" data-back data-l10n-id="back"></button></p>
+      </section>
+
+      <section id="rules" class="paper card" aria-labelledby="rules-title" hidden>
+        <h2 id="rules-title" tabindex="-1"></h2>
+        <section class="rule-card" data-l10n-id="rule-card">
+          <p class="rule"></p>
+          <p class="fairness"></p>
+        </section>
+        <div id="demo" class="demo"></div>
+        <p class="actions">
+          <button type="button" class="stamp" id="rules-setup" data-l10n-id="set-up-game"></button>
+          <button type="button" class="stamp quiet" data-back data-l10n-id="back"></button>
+        </p>
+      </section>
+
+      <form id="setup" class="paper card setup" aria-labelledby="setup-title" hidden>
+        <h2 id="setup-title" tabindex="-1"></h2>
+        <div class="setup-mode">
+          <fieldset class="row" id="boards" hidden>
+            <legend data-l10n-id="boards"></legend>
+            <label><input type="radio" name="boards" value="1" checked /> <span data-l10n-id="boards-one"></span></label>
+            <label><input type="radio" name="boards" value="2" /> <span data-l10n-id="boards-two"></span></label>
+            <label><input type="radio" name="boards" value="3" /> <span data-l10n-id="boards-three"></span></label>
+          </fieldset>
+          <label class="toggle" id="fair" hidden
+            ><input type="checkbox" name="fair" /> <span data-l10n-id="fair-start"></span></label
+          >
+          <section id="rule-card" class="rule-card" data-l10n-id="rule-card">
+            <p class="rule"></p>
+            <p class="fairness"></p>
+          </section>
+        </div>
+        <div class="setup-options">
+        <fieldset class="row">
+          <legend data-l10n-id="opponent"></legend>
+          <label><input type="radio" name="opponent" value="computer" checked /> <span data-l10n-id="opponent-computer"></span></label>
+          <label><input type="radio" name="opponent" value="friend" /> <span data-l10n-id="opponent-friend"></span></label>
+        </fieldset>
+        <fieldset class="row" data-computer>
+          <legend data-l10n-id="computer"></legend>
+          <label><input type="radio" name="level" value="casual" checked /> <span data-l10n-id="level-casual"></span></label>
+          <label><input type="radio" name="level" value="keen" /> <span data-l10n-id="level-keen"></span></label>
+          <label><input type="radio" name="level" value="sharp" /> <span data-l10n-id="level-sharp"></span></label>
+        </fieldset>
+        <p id="record" class="record"></p>
+        <fieldset class="row" data-computer>
+          <legend data-l10n-id="your-side"></legend>
+          <label><input type="radio" name="side" value="first" checked /> <span data-l10n-id="side-first"></span></label>
+          <label><input type="radio" name="side" value="second" /> <span data-l10n-id="side-second"></span></label>
+          <label><input type="radio" name="side" value="alternate" /> <span data-l10n-id="side-alternate"></span></label>
+        </fieldset>
+        <p class="actions">
+          <button type="submit" class="stamp" data-l10n-id="play" disabled></button>
+          <button type="button" class="stamp quiet" id="setup-rules" data-l10n-id="how-to-play"></button>
+          <button type="button" class="stamp quiet" data-back data-l10n-id="back"></button>
+        </p>
+        </div>
+      </form>
+
+      <section id="play" class="panel status" aria-labelledby="mode-title" hidden>
+        <h2 id="mode-title"></h2>
+        <p class="rule" id="play-rule"></p>
+        <p class="turn" id="status"></p>
+        <p class="vanish-note" id="vanish-note"></p>
+        <p class="actions">
+          <button type="button" class="stamp small" id="pause-open" data-l10n-id="pause"></button>
+          <button type="button" class="stamp small quiet" id="undo" data-l10n-id="undo" hidden></button>
+        </p>
+        <!-- The camera by single presses (GDD §5); its keys are in the labels. -->
+        <p class="camera" role="group" data-l10n-id="camera">
+          <button type="button" class="stamp small quiet" data-camera="rotateLeft">⟲</button>
+          <button type="button" class="stamp small quiet" data-camera="rotateRight">⟳</button>
+          <button type="button" class="stamp small quiet" data-camera="tiltUp">▲</button>
+          <button type="button" class="stamp small quiet" data-camera="tiltDown">▼</button>
+          <button type="button" class="stamp small quiet" data-camera="resetCamera">⌂</button>
+        </p>
+        <!-- Cube: the active layer by single presses, for touch too (GDD §5). -->
+        <p class="camera" id="layer-buttons" role="group" data-l10n-id="layer-buttons" hidden>
+          <button type="button" class="stamp small quiet" data-layer="PageUp" data-l10n-id="layer-up"></button>
+          <button type="button" class="stamp small quiet" data-layer="PageDown" data-l10n-id="layer-down"></button>
+        </p>
+        <p class="measure" id="measure" hidden></p>
+      </section>
+
+      <div class="board-area"><div id="mirror" class="mirror"></div></div>
+      <!-- Misère wild, Order and Chaos: the mark the player places next, beside the board;
+           a press swaps it (W1, OC1). src/main.ts places it. -->
+      <button type="button" class="stamp mark-swap" id="mark-swap" hidden>
+        <svg class="mark-piece" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><use /></svg>
+        <span></span>
+      </button>
+
+      <!-- Nesting: the pieces of each size still off the board, beside the board; a press
+           takes one, and the pressed one is the piece held (NE1, NE2). src/main.ts places it. -->
+      <div class="tray" id="tray" role="group" data-l10n-id="tray" hidden>
+        <p class="tray-title"><span class="tray-side"></span> <span class="tray-hint"></span></p>
+        <div class="tray-pieces">
+          <button type="button" class="stamp tray-piece" data-size="2">
+            <svg class="mark-piece" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><use /></svg>
+            <span class="tray-text"><span class="tray-size"></span><span class="tray-count"></span><span class="tray-held" data-l10n-id="tray-held"></span></span>
+          </button>
+          <button type="button" class="stamp tray-piece" data-size="1">
+            <svg class="mark-piece" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><use /></svg>
+            <span class="tray-text"><span class="tray-size"></span><span class="tray-count"></span><span class="tray-held" data-l10n-id="tray-held"></span></span>
+          </button>
+          <button type="button" class="stamp tray-piece" data-size="0">
+            <svg class="mark-piece" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><use /></svg>
+            <span class="tray-text"><span class="tray-size"></span><span class="tray-count"></span><span class="tray-held" data-l10n-id="tray-held"></span></span>
+          </button>
+        </div>
+      </div>
+
+      <section id="result" class="paper result" aria-labelledby="result-title" hidden>
+        <h2 id="result-title" tabindex="-1"></h2>
+        <p id="result-detail"></p>
+        <p id="result-hint" class="hint"></p>
+        <p class="actions">
+          <button type="button" class="stamp" id="rematch" data-l10n-id="rematch"></button>
+          <button type="button" class="stamp quiet" id="change" data-l10n-id="change-mode"></button>
+        </p>
+      </section>
+
+      <section id="pause" class="paper card narrow" aria-labelledby="pause-title" hidden>
+        <h2 id="pause-title" tabindex="-1" data-l10n-id="paused"></h2>
+        <p class="actions stack">
+          <button type="button" class="stamp" id="resume" data-l10n-id="resume"></button>
+          <button type="button" class="stamp quiet" id="pause-settings" data-l10n-id="settings"></button>
+          <button type="button" class="stamp quiet" id="pause-change" data-l10n-id="change-mode"></button>
+        </p>
+      </section>
+
+      <!-- Settings (GDD §8). At first launch the same card shows the first part only, with a
+           welcome (§6). Volumes: TTT-4.1.9. Strings: src/ui/locales/en.ftl. -->
+      <form id="settings" class="paper card narrow settings" aria-labelledby="settings-title" hidden>
+        <h2 id="settings-title" tabindex="-1"></h2>
+        <p class="first-only" data-l10n-id="welcome-intro"></p>
+        <fieldset class="row">
+          <legend data-l10n-id="graphics"></legend>
+          <label><input type="radio" name="gfx" value="high" /> <span data-l10n-id="gfx-high"></span></label>
+          <label><input type="radio" name="gfx" value="low" /> <span data-l10n-id="gfx-low"></span></label>
+          <label><input type="radio" name="gfx" value="2d" /> <span data-l10n-id="gfx-2d"></span></label>
+        </fieldset>
+        <label class="slider"
+          ><span data-l10n-id="text-size"></span> <input type="range" name="textSize" min="100" max="200" step="25" />
+          <output id="text-size-value"></output></label
+        >
+        <label class="toggle"><input type="checkbox" name="contrast" /> <span data-l10n-id="high-contrast"></span></label>
+        <label class="toggle"><input type="checkbox" name="reducedMotion" /> <span data-l10n-id="reduced-motion"></span></label>
+        <div class="later">
+          <label class="slider"
+            ><span data-l10n-id="master-volume"></span>
+            <input type="range" name="masterVolume" min="0" max="100" step="10" />
+            <output id="master-volume-value"></output></label
+          >
+          <label class="slider"
+            ><span data-l10n-id="music-volume"></span>
+            <input type="range" name="musicVolume" min="0" max="100" step="10" />
+            <output id="music-volume-value"></output></label
+          >
+          <label class="slider"
+            ><span data-l10n-id="effects-volume"></span>
+            <input type="range" name="effectsVolume" min="0" max="100" step="10" />
+            <output id="effects-volume-value"></output></label
+          >
+          <label class="toggle"><input type="checkbox" name="musicInPlay" /> <span data-l10n-id="music-in-play"></span></label>
+          <label class="toggle"><input type="checkbox" name="haptics" /> <span data-l10n-id="vibration"></span></label>
+          <label class="slider"
+            ><span data-l10n-id="camera-sensitivity"></span>
+            <input type="range" name="cameraSpeed" min="50" max="200" step="25" />
+            <output id="camera-speed-value"></output></label
+          >
+          <fieldset>
+            <legend data-l10n-id="keys"></legend>
+            <ul id="key-list" class="key-list"></ul>
+            <p class="settings-note" data-l10n-id="keys-fixed"></p>
+            <button type="button" class="stamp small quiet" id="keys-reset" data-l10n-id="keys-reset"></button>
+          </fieldset>
+          <fieldset class="row" id="transfer">
+            <legend data-l10n-id="your-settings"></legend>
+            <button type="button" class="stamp small quiet" id="settings-export" data-l10n-id="export"></button>
+            <button type="button" class="stamp small quiet" id="settings-import" data-l10n-id="import"></button>
+            <input type="file" id="settings-file" accept=".json,application/json" hidden />
+          </fieldset>
+          <p class="settings-note" id="settings-note"></p>
+        </div>
+        <p class="actions"><button type="button" class="stamp" id="settings-done" data-back></button></p>
+      </form>
+
+      <section id="credits" class="paper card credits" aria-labelledby="credits-title" hidden>
+        <h2 id="credits-title" tabindex="-1" data-l10n-id="credits"></h2>
+        <div id="credits-body"></div>
+        <p class="actions"><button type="button" class="stamp" data-back data-l10n-id="back"></button></p>
+      </section>
+    </main>
+    <!-- Controller prompts (style guide, "Controller and Steam Deck"), shown after its use. -->
+    <p class="pad-hints" id="pad-hints" aria-hidden="true">
+      <span data-l10n-id="pad-choose"></span><span data-l10n-id="pad-back"></span
+      ><span class="in-play" data-l10n-id="pad-undo"></span
+      ><span class="in-play in-wild" data-l10n-id="pad-swap"></span
+      ><span class="in-play in-nest" data-l10n-id="pad-next-piece"></span
+      ><span class="in-play" data-l10n-id="pad-camera"></span>
+    </p>
+    <script type="module" src="./src/main.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "setup": {
+    "mode": "overtime",
+    "opponent": "computer",
+    "level": "keen",
+    "side": "first",
+    "boards": 1,
+    "fair": false
+  },
+  "first": "X",
+  "seed": 7,
+  "moves": [4, 0, 2, 6, 3, 5, 1, 7, 8],
+  "rng": [4004871382, 3862909744, 3624387629, 603720124]
+}

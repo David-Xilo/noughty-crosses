@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "setup": {
+    "mode": "notakto",
+    "opponent": "friend",
+    "level": "casual",
+    "side": "first",
+    "boards": 3,
+    "fair": false
+  },
+  "first": "X",
+  "seed": 11,
+  "moves": [0, 1, 2, 9, 10, 11],
+  "rng": [1958489464, 663632455, 1915332803, 3984028461]
+}

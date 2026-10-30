@@ -1,0 +1,43 @@
+# Build output
+build/
+dist/
+dist-playtest/
+export/
+*.apk
+*.aab
+
+# Spikes: keep source, not builds or dependencies
+spikes/*/build/
+spikes/*/dist/
+spikes/*/src-tauri/target/
+spikes/*/android/
+
+# Tooling
+node_modules/
+tsconfig.tsbuildinfo
+.godot/
+.import/
+*.tmp
+
+# Editors and OS
+.idea/
+.vscode/
+.DS_Store
+
+# Third-party add-ons fetched for spikes (see spikes/README.md)
+spikes/godot/addons/
+spikes/web/measure/*.png
+spikes/web/src-tauri/target/
+spikes/web/src-tauri/gen/
+
+# Downloaded art sources (re-created by `npm run assets`)
+art/src/
+
+# Playwright output (npm run e2e)
+test-results/
+playwright-report/
+
+# Desktop app build (npm run desktop)
+src-tauri/target/
+src-tauri/gen/
+.claude/worktrees/

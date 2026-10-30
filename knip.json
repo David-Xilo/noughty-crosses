@@ -1,0 +1,6 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "entry": ["tools/*.mjs"],
+  "project": ["src/**/*.ts", "tools/**/*.mjs", "test/**/*.ts"],
+  "ignoreBinaries": ["patchelf"]
+}

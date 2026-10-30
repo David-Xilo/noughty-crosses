@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "setup": {
+    "mode": "cube",
+    "opponent": "friend",
+    "level": "keen",
+    "side": "first",
+    "boards": 1,
+    "fair": false
+  },
+  "first": "X",
+  "seed": 7,
+  "moves": [0, 63, 1, 62, 2, 39],
+  "rng": [4004871382, 3862909744, 3624387629, 603720124]
+}

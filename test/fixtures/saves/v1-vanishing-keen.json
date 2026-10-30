@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "setup": {
+    "mode": "vanishing",
+    "opponent": "computer",
+    "level": "keen",
+    "side": "first",
+    "boards": 1,
+    "fair": false
+  },
+  "first": "X",
+  "seed": 7,
+  "moves": [4, 5, 3, 2],
+  "rng": [4004871382, 3862909744, 3624387629, 603720124]
+}
