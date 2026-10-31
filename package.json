@@ -38,7 +38,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.15",
-    "@capacitor/cli": "^8.5.3",
+    "@capacitor/cli": "^8.6.0",
     "@playwright/test": "^1.63.0",
     "@tauri-apps/cli": "^2.12.1",
     "@types/node": "^26.6.4",
@@ -48,7 +48,7 @@
     "knip": "^6.42.1",
     "sharp": "^0.35.5",
     "typescript": "^7.0.2",
-    "vite": "^8.3.2",
+    "vite": "^8.3.5",
     "vitest": "^5.0.3"
   }
 }
